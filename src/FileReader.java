@@ -1,9 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
+
 import static java.lang.Character.toLowerCase;
 
 public class FileReader {
@@ -39,10 +37,13 @@ public class FileReader {
         try {
             File txtDoc = new File(path);
             Scanner docReader = new Scanner(txtDoc);
-            while(docReader.hasNext()) {
-                char c = toLowerCase(docReader.next().charAt(0));
-                if (hMap.containsKey(c)) {
-                    hMap.replace(c, hMap.get(c)+1);
+            while(docReader.hasNextLine()) {
+                String line = docReader.nextLine();
+                for (int i=0; i<line.length();i++) {
+                    char c = toLowerCase(line.charAt(i));
+                    if (hMap.containsKey(c)) {
+                        hMap.replace(c, hMap.get(c)+1);
+                    }
                 }
             }
         } catch (FileNotFoundException e) {
@@ -84,94 +85,53 @@ public class FileReader {
             correspondingChars.put('y', 'a');
             correspondingChars.put('z', 'a');
 
-            int largest = (int) m.get('a');
-            int cutoff = -1;
+            ArrayList<Character> usedChars = new ArrayList<>();
+
+            int largest = 0;
             char largestChar = 'a';
 
             //iterators
-            Iterator it = m.entrySet().iterator();
+            Iterator itM = m.entrySet().iterator();
             Iterator itCc = correspondingChars.entrySet().iterator();
+            int idx = 0;
 
 
-            while(it.hasNext()) {
-                Map.Entry entry = (Map.Entry) it.next();
-                if ((int)entry.getValue() > largest && (int)entry.getValue() < cutoff) {
-                    largest = (int)entry.getValue();
-                    largestChar = (char)entry.getKey();
+            while (itCc.hasNext()) {
+                while(itM.hasNext()) {
+                    Map.Entry entry = (Map.Entry) itM.next();
+                    if ((int)entry.getValue() >= largest && !usedChars.contains(entry.getKey())) {
+                        largest = (int)entry.getValue();
+                        largestChar = (char)entry.getKey();
+                    }
                 }
+                correspondingChars.put(largestChar,cArr[idx]);
+                largest = 0;
+                usedChars.add(largestChar);
+                itM = m.entrySet().iterator();
+                idx++;
+                itCc.next();
             }
 
-            while (docReader.hasNext()) {
-                char c = docReader.next().charAt(0);
-                if (Character.isUpperCase(c)) {
 
+            while (docReader.hasNextLine()) {
+                String line = docReader.nextLine();
+                for (int i=0; i<line.length(); i++) {
+                    char c1 = Character.toLowerCase(line.charAt(i));
+                    char c2 = line.charAt(i);
+                    if (correspondingChars.containsKey(c1)) {
+                        if (Character.isUpperCase(c2)) {
+                            System.out.print(Character.toUpperCase(correspondingChars.get(c1)));
+                        } else {
+                            System.out.print(correspondingChars.get(c1));
+                        }
+                    } else {
+                        System.out.print(c1);
+                    }
                 }
+                System.out.println("");
             }
         } catch (FileNotFoundException e) {
             System.out.println("Oops! It seems your file '"+path+"' cannot be found.");
         }
     }
-
-
-
-    /*
-    public static int charIdx(char c) {
-        c = toLowerCase(c);
-        switch(c) {
-            case 'a' :
-                return 0;
-            case 'b' :
-                return 1;
-            case 'c' :
-                return 2;
-            case 'd' :
-                return 3;
-            case 'e' :
-                return 4;
-            case 'f' :
-                return 5;
-            case 'g' :
-                return 6;
-            case 'h' :
-                return 7;
-            case 'i' :
-                return 8;
-            case 'j' :
-                return 9;
-            case 'k' :
-                return 10;
-            case 'l' :
-                return 11;
-            case 'm' :
-                return 12;
-            case 'n' :
-                return 13;
-            case 'o' :
-                return 14;
-            case 'p' :
-                return 15;
-            case 'q' :
-                return 16;
-            case 'r' :
-                return 17;
-            case 's' :
-                return 18;
-            case 't' :
-                return 19;
-            case 'u' :
-                return 20;
-            case 'v' :
-                return 21;
-            case 'w' :
-                return 22;
-            case 'x' :
-                return 23;
-            case 'y' :
-                return 24;
-            case 'z' :
-                return 25;
-        }
-        return -1;
-    }
-     */
 }
